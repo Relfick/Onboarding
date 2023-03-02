@@ -28,7 +28,7 @@ public class CategoryController : ControllerBase
         return await _db.Categories.ToListAsync();
     }
     
-    // GET: api/Category
+    // GET: api/tg/Category
     [HttpGet]
     [Route("~/api/tg/category")]
     public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesTg([FromHeader] TelegramCredentials tgCredentials)
@@ -80,8 +80,7 @@ public class CategoryController : ControllerBase
         _db.Categories.Add(category);
         await _db.SaveChangesAsync();
 
-        // return CreatedAtAction(nameof(GetById), new { id = Category.Id }, Category);
-        return NoContent();
+        return CreatedAtAction(nameof(GetCategory), new { id = category.Id, name = category.Name }, category);
     }
     
     // POST: api/Categories
@@ -98,7 +97,6 @@ public class CategoryController : ControllerBase
         _db.Categories.AddRange(categories);
         await _db.SaveChangesAsync();
 
-        // return CreatedAtAction("GetCategories", new { id = Category.Id }, Category);
-        return NoContent();
+        return CreatedAtAction(nameof(GetCategories), allCategories);
     }
 }

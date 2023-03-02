@@ -63,7 +63,7 @@ public class ArticleController : ControllerBase
             Id = article.Id,
             Text = article.Text,
             Title = article.Title,
-            Category = _db.Categories.Find(article.CategoryId)!
+            Category = (await _db.Categories.FindAsync(article.CategoryId))!
         };
 
         return nwArticle;
@@ -72,14 +72,13 @@ public class ArticleController : ControllerBase
     // GET: api/Article/search/?category
     [HttpGet]
     [Route("search")]
-    public async Task<ActionResult<List<NWArticle>>> GetArticles([FromQuery] int categoryId)
+    public async Task<ActionResult<List<NWArticle>>> SearchArticles([FromQuery] int category)
     {
         if (_db.Articles == null)
             return NotFound();
 
         var articles = await _db.Articles
-            // .Include(a => a.Category)
-            .Where(a => a.CategoryId == categoryId)
+            .Where(a => a.CategoryId == category)
             .ToListAsync();
 
         if (articles.Count == 0)
@@ -167,8 +166,10 @@ public class ArticleController : ControllerBase
         _db.Articles.Add(article);
         await _db.SaveChangesAsync();
 
-        // return CreatedAtAction("GetArticle", new { id = Article.Id }, Article);
-        return NoContent();
+        return CreatedAtAction(
+            nameof(GetArticle), 
+            new { id = article.Id, title = article.Title, text = article.Text, categoryId = article.CategoryId }, 
+            article);
     }
     
     // POST: api/Articles
@@ -185,8 +186,7 @@ public class ArticleController : ControllerBase
         _db.Articles.AddRange(articles);
         await _db.SaveChangesAsync();
 
-        // return CreatedAtAction("GetArticles", new { id = Article.Id }, Article);
-        return NoContent();
+        return CreatedAtAction(nameof(GetArticles), allArticles);
     }
 
     // DELETE: api/Article/5
