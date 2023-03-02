@@ -24,9 +24,7 @@ public class ArticleController : ControllerBase
             return NotFound();
         }
         
-        var articles = await _db.Articles
-            .Include(a => a.Category)
-            .ToListAsync();
+        var articles = await _db.Articles.ToListAsync();
 
         return articles;
     }
@@ -55,8 +53,7 @@ public class ArticleController : ControllerBase
         if (_db.Articles == null)
             return NotFound();
 
-        var article = _db.Articles
-            .Include(a => a.Category).FirstOrDefault(a => a.Id == id);
+        var article = _db.Articles.Find(id);
 
         if (article == null)
             return NotFound();
@@ -66,7 +63,7 @@ public class ArticleController : ControllerBase
             Id = article.Id,
             Text = article.Text,
             Title = article.Title,
-            Category = article.Category
+            Category = _db.Categories.Find(article.CategoryId)!
         };
 
         return nwArticle;
@@ -75,17 +72,17 @@ public class ArticleController : ControllerBase
     // GET: api/Article/search/?category
     [HttpGet]
     [Route("search")]
-    public async Task<ActionResult<List<NWArticle>>> GetArticles([FromQuery] int category)
+    public async Task<ActionResult<List<NWArticle>>> GetArticles([FromQuery] int categoryId)
     {
         if (_db.Articles == null)
             return NotFound();
 
         var articles = await _db.Articles
-            .Include(a => a.Category)
-            .Where(a => a.Category.Id == category)
+            // .Include(a => a.Category)
+            .Where(a => a.CategoryId == categoryId)
             .ToListAsync();
 
-        if (articles == null)
+        if (articles.Count == 0)
             return NotFound();
 
         var nwArticles = articles
@@ -94,7 +91,7 @@ public class ArticleController : ControllerBase
                 Id = a.Id,
                 Text = a.Text,
                 Title = a.Title,
-                Category = a.Category
+                Category = _db.Categories.Find(a.CategoryId)!
             })
             .ToList();
 
@@ -167,8 +164,6 @@ public class ArticleController : ControllerBase
             return Problem("Entity set 'ApplicationContext.Articles'  is null.");
         }
 
-        article.CategoryId = article.Category.Id;
-        article.Category = null;
         _db.Articles.Add(article);
         await _db.SaveChangesAsync();
 
@@ -187,11 +182,6 @@ public class ArticleController : ControllerBase
         }
 
         var articles = allArticles.Articles;
-        foreach (var article in articles)
-        {
-            article.CategoryId = article.Category.Id;
-            article.Category = null;
-        }
         _db.Articles.AddRange(articles);
         await _db.SaveChangesAsync();
 

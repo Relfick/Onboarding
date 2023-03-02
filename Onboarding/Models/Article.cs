@@ -13,10 +13,8 @@ public class Article
     [Required]
     public string Text { get; set; }
     
-    // [Required]
+    [Required]
     public int CategoryId { get; set; }
-    [ForeignKey("CategoryId")]
-    public Category Category { get; set; }
 }
 
 public class AllArticles

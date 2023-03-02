@@ -51,14 +51,6 @@ public class CategoryController : ControllerBase
         }
 
         return await GetCategories();
-        
-        
-        // var headers = httpContextAccessor.HttpContext.Request.Headers;
-        // headers.TryGetValue("tgUserId", out StringValues tgUserId);
-        // if (tgUserId.)
-        // {
-        //     
-        // }
     } 
     
 
@@ -88,7 +80,7 @@ public class CategoryController : ControllerBase
         _db.Categories.Add(category);
         await _db.SaveChangesAsync();
 
-        // return CreatedAtAction("GetCategories", new { id = Category.Id }, Category);
+        // return CreatedAtAction(nameof(GetById), new { id = Category.Id }, Category);
         return NoContent();
     }
     

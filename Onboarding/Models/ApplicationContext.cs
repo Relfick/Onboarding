@@ -40,10 +40,10 @@ public sealed class ApplicationContext: DbContext
         builder.Property(article => article.Title).HasColumnName("title");
         builder.Property(article => article.Text).HasColumnName("text");
         builder.Property(article => article.CategoryId).HasColumnName("category_id");
-        // builder.Property("CategoryId").HasColumnName("category_id");
-        // builder
-            // .HasOne(article => article.Category)
-            // .WithMany(category => category.Articles);
+        builder
+            .HasOne<Category>()
+            .WithMany()
+            .HasForeignKey(a => a.CategoryId);
     }
     
     private void RoleConfigure(EntityTypeBuilder<Role> builder)

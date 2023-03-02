@@ -9,9 +9,6 @@ public class Category
     
     [Required]
     public string Name { get; set; }
-
-    [JsonIgnore]
-    public List<Article> Articles { get; set; } = new();
 }
 
 public class AllCategories
