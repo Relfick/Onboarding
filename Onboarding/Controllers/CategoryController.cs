@@ -99,4 +99,55 @@ public class CategoryController : ControllerBase
 
         return CreatedAtAction(nameof(GetCategories), allCategories);
     }
+    
+    // PUT: api/Category/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Category>> PutCategory(int id, Category category)
+    {
+        if (id != category.Id)
+            return BadRequest("Id mismatch");
+        
+        _db.Entry(category).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!CategoryExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        
+        return NoContent();
+    }
+    
+    // DELETE: api/Category/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        var category = await _db.Categories.FindAsync(id);
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        _db.Categories.Remove(category);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+
+    private bool CategoryExists(int id)
+    {
+        var category = _db.Categories.Find(id);
+        return category != null;
+    }
 }
