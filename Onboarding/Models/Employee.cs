@@ -6,20 +6,18 @@ namespace Onboarding.Models;
 public class Employee
 {
     public int Id { get; set; }
+    
     [Required]
     public string Name { get; set; }
-
+    
+    [Required]
     public int RoleId { get; set; }
-    [ForeignKey("RoleId")]
-    public Role Role { get; set; }
     
+    [Required] 
     public int DepartmentId { get; set; }
-    [ForeignKey("DepartmentId")]
-    public Department Department { get; set; }
     
+    [Required] 
     public int CityId { get; set; }
-    [ForeignKey("CityId")]
-    public City City { get; set; } 
     
     public string? PhoneNumber { get; set; } 
     
