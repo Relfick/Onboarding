@@ -24,33 +24,100 @@ public class EmployeeController : ControllerBase
             return NotFound();
         }
         
-        var employees = await _db.Employees
-            .Include(a => a.City)
-            .Include(a => a.Department)
-            .Include(a => a.Role)
-            .ToListAsync();
+        var employees = await _db.Employees.ToListAsync();
     
         return employees;
     }
     
+    // GET: api/Employee/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Employee>> GetEmployee(int id)
+    {
+        if (_db.Employees == null)
+            return NotFound();
+
+        var employee = await _db.Employees.FindAsync(id);
+
+        if (employee == null)
+            return NotFound();
+
+        return employee;
+    }
+    
+    // POST: api/Employee
     [HttpPost]
     public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
     {
         if (_db.Employees == null)
         {
-            return Problem("Entity set 'ApplicationContext.Employees'  is null.");
+            return Problem("Entity set 'ApplicationContext.Categories'  is null.");
         }
-
-        employee.CityId = employee.City.Id;
-        employee.City = null;
-        employee.DepartmentId = employee.Department.Id;
-        employee.Department = null;
-        employee.RoleId = employee.Role.Id;
-        employee.Role = null;
         _db.Employees.Add(employee);
         await _db.SaveChangesAsync();
 
-        // return CreatedAtAction("GetArticle", new { id = Article.Id }, Article);
+        return CreatedAtAction(
+            nameof(GetEmployee), 
+            new
+            {
+                id = employee.Id, 
+                name = employee.Name, 
+                roleId = employee.RoleId,
+                departmentId = employee.DepartmentId,
+                cityId = employee.CityId,
+                phoneNumber = employee.PhoneNumber,
+                tgUserId = employee.TgUserId,
+                tgUsername = employee.TgUsername
+            }, 
+            employee);
+    }
+    
+    // PUT: api/Employee/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Employee>> PutEmployee(int id, Employee employee)
+    {
+        if (id != employee.Id)
+            return BadRequest("Id mismatch");
+        
+        _db.Entry(employee).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!EmployeeExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        
         return NoContent();
+    }
+    
+    // DELETE: api/Employee/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEmployee(int id)
+    {
+        var employee = await _db.Employees.FindAsync(id);
+        if (employee == null)
+        {
+            return NotFound();
+        }
+
+        _db.Employees.Remove(employee);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+    
+    private bool EmployeeExists(int id)
+    {
+        var employee = _db.Employees.Find(id);
+        return employee != null;
     }
 }

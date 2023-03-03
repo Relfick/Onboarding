@@ -42,6 +42,7 @@ public class RoleController : ControllerBase
         return role;
     }
     
+    // POST: api/Role
     [HttpPost]
     public async Task<ActionResult<Role>> PostRole(Role role)
     {
@@ -54,5 +55,55 @@ public class RoleController : ControllerBase
 
         // return CreatedAtAction("GetRoles", new { id = Role.Id }, Role);
         return NoContent();
+    }
+    
+    // PUT: api/Role/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Category>> PutRole(int id, Role role)
+    {
+        if (id != role.Id)
+            return BadRequest("Id mismatch");
+        
+        _db.Entry(role).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!RoleExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        
+        return NoContent();
+    }
+    
+    // DELETE: api/Role/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteRole(int id)
+    {
+        var role = await _db.Roles.FindAsync(id);
+        if (role == null)
+        {
+            return NotFound();
+        }
+
+        _db.Roles.Remove(role);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+    
+    private bool RoleExists(int id)
+    {
+        var role = _db.Roles.Find(id);
+        return role != null;
     }
 }
