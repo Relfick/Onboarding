@@ -28,24 +28,7 @@ public class ArticleController : ControllerBase
 
         return articles;
     }
-    
-    // GET: api/Article/5
-    // [HttpGet("{id}")]
-    // public async Task<ActionResult<Article>> GetArticle(int id)
-    // {
-    //     if (_db.Articles == null)
-    //         return NotFound();
-    //
-    //     var article = _db.Articles
-    //         .Include(a => a.Category).FirstOrDefault(a => a.Id == id);
-    //
-    //     if (article == null)
-    //         return NotFound();
-    //
-    //     return article;
-    // }
-    
-    
+
     // GET: api/Article/5
     [HttpGet("{id}")]
     public async Task<ActionResult<NWArticle>> GetArticle(int id)
@@ -97,63 +80,6 @@ public class ArticleController : ControllerBase
         return nwArticles;
     }
 
-    // PUT: api/Article/5
-    // [HttpPut("{tgArticleId}")]
-    // public async Task<IActionResult> PutArticle(long tgArticleId, Article Article)
-    // {
-    //     if (tgArticleId != Article.Id)
-    //     {
-    //         return BadRequest();
-    //     }
-    //
-    //     _db.Entry(Article).State = EntityState.Modified;
-    //
-    //     try
-    //     {
-    //         await _db.SaveChangesAsync();
-    //     }
-    //     catch (DbUpdateConcurrencyException)
-    //     {
-    //         if (!ArticleExists(tgArticleId))
-    //         {
-    //             return NotFound();
-    //         }
-    //         else
-    //         {
-    //             throw;
-    //         }
-    //     }
-    //
-    //     return NoContent();
-    // }
-    //
-    // [HttpPut("workmode/{tgArticleId}")]
-    // public async Task<IActionResult> PutWorkMode(long tgArticleId, [FromBody] ArticleWorkMode workMode)
-    // {
-    //     var Article = await _db.Articles.FirstOrDefaultAsync(u => u.Id == tgArticleId);
-    //     if (Article == null)
-    //         return NotFound();
-    //
-    //     Article.WorkMode = workMode;
-    //     try
-    //     {
-    //         await _db.SaveChangesAsync();
-    //     }
-    //     catch (DbUpdateConcurrencyException)
-    //     {
-    //         if (!ArticleExists(tgArticleId))
-    //         {
-    //             return NotFound();
-    //         }
-    //         else
-    //         {
-    //             throw;
-    //         }
-    //     }
-    //
-    //     return NoContent();
-    // }
-    
     // POST: api/Article
     [HttpPost]
     public async Task<ActionResult<Article>> PostArticle(Article article)
@@ -189,28 +115,53 @@ public class ArticleController : ControllerBase
         return CreatedAtAction(nameof(GetArticles), allArticles);
     }
 
-    // DELETE: api/Article/5
-    // [HttpDelete("{tgArticleId}")]
-    // public async Task<IActionResult> DeleteArticle(long tgArticleId)
-    // {
-    //     if (_db.Articles == null)
-    //     {
-    //         return NotFound();
-    //     }
-    //     var Article = await _db.Articles.FindAsync(tgArticleId);
-    //     if (Article == null)
-    //     {
-    //         return NotFound();
-    //     }
-    //
-    //     _db.Articles.Remove(Article);
-    //     await _db.SaveChangesAsync();
-    //
-    //     return NoContent();
-    // }
-
-    private bool ArticleExists(long id)
+    // PUT: api/Article/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Article>> PutArticle(int id, Article article)
     {
-        return (_db.Articles?.Any(e => e.Id == id)).GetValueOrDefault();
+        if (id != article.Id)
+            return BadRequest("Id mismatch");
+        
+        _db.Entry(article).State = EntityState.Modified;
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ArticleExists(id))
+            {
+                return NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+        
+        return NoContent();
+    }
+    
+    // DELETE: api/Article/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteArticle(int id)
+    {
+        var article = await _db.Articles.FindAsync(id);
+        if (article == null)
+        {
+            return NotFound();
+        }
+
+        _db.Articles.Remove(article);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    private bool ArticleExists(int id)
+    {
+        var article = _db.Articles.Find(id);
+        return article != null;
     }
 }
